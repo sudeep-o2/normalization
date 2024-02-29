@@ -32,6 +32,7 @@ combined_df.to_csv("combined_result.csv", index=False)"""
 import os
 import pandas as pd
 from scipy.stats import percentileofscore
+import numpy as np
 
 def calculate_percentile_score(raw_score, raw_scores):
 
@@ -43,9 +44,9 @@ def calculate_percentile_score(raw_score, raw_scores):
     # Calculate the percentile score using the formula (m/N) * 100
     percentile = (m / N) * 100
     
-    return percentile
+    return round(percentile,7)
 
-    #return (percentileofscore(raw_scores, raw_score) / 100) * 100
+    
 
 #
 
@@ -65,6 +66,8 @@ def fill_blank_entries(df):
                         # Apply the formula to calculate the blank entry
                         x = x1 + ((x2 - x1) / (p2 - p1)) * (p - p1)
                         df.at[i, col] = x
+
+                    
 
     return df
 
@@ -98,7 +101,8 @@ def merge_dataframes(df_list):
     # Create a new DataFrame with Percentile_Score column
     combined_df['Percentile_Score'] = all_percentiles
 
-    #combined_df['Percentile_Score'] = [round(percentile, 2) for percentile in all_percentiles]
+    #combined_df['Percentile_Score'] = [round(percentile, 7) for percentile in all_percentiles]
+
 
 
     # Iterate through each DataFrame in df_list and map RawScores to the new DataFrame
@@ -112,9 +116,11 @@ def merge_dataframes(df_list):
         # Map RawScores to Percentile_Score in the new DataFrame
         combined_df[col_name] = combined_df['Percentile_Score'].map(percentile_mapping)
 
-        combined_df.to_csv("combined_df_old.csv", index=False)
+        #combined_df.to_csv("combined_df7.csv", index=False)
 
         combined_df = fill_blank_entries(combined_df)
+
+
 
     return combined_df
 
@@ -125,6 +131,7 @@ def process_folder(folder_path):
 
     # Iterate through each file in the folder
     for filename in os.listdir(folder_path):
+       
         file_path = os.path.join(folder_path, filename)
 
         # Assuming files are CSV, you can adjust the read function accordingly
@@ -134,7 +141,9 @@ def process_folder(folder_path):
         df['Percentile_Score'] = df['RawScore'].apply(
             lambda x: calculate_percentile_score(x, df['RawScore'])
         )
-        print(df)
+        #print(df)
+        
+        df.to_csv(f"""{file_path}1.csv""", index=False)
 
         # Append the DataFrame to the list
         df_list.append(df)
@@ -146,6 +155,8 @@ if __name__ == "__main__":
     df_list = process_folder(folder_path)
     print(1)
     combined_result = merge_dataframes(df_list)
-
+    
     # Save the result to a new CSV file or do further processing as needed
-    combined_result.to_csv("combined_result_old.csv", index=False)
+    combined_result.to_csv("combined_with-.csv", index=False)
+
+
